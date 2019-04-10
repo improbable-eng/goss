@@ -21,7 +21,7 @@ func (f *DefFile) Mode() (string, error) {
 	return mode, nil
 }
 
-// TODO(stefan): owner and group are not defined for windows in standard library, find out whether we can support it.
+// TODO(ENG-1522): owner and group are not defined for windows in standard library, find out whether we can support it.
 func (f *DefFile) Owner() (string, error) {
 	return "", nil
 }
