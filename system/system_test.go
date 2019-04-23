@@ -65,6 +65,11 @@ func TestDetectServiceWin(t *testing.T) {
 		t.Fatalf("service %q should not exist", svcName)
 	}
 	fmt.Fprintf(os.Stderr, "End WTS test\n")
+	t.Fatalf("?failed1")
+}
+
+func TestDetectServiceWin2(t *testing.T) {
+	t.Fatalf("failed2")
 }
 
 func TestDetectDistro(t *testing.T) {
