@@ -31,6 +31,7 @@ func (s *ServiceWindows) Exists() (bool, error) {
 		return false, err
 	}
 	for _, svc := range svcs {
+		fmt.Fprintf(os.Stderr, "Found service %v\n", svc)
 		if svc == s.service {
 			return true, nil
 		}
