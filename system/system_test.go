@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
-
-	"github.com/aelsabbahy/goss/util"
 )
 
 type noInputs func() string
@@ -42,26 +40,6 @@ func TestDetectService(t *testing.T) {
 		[]string{"systemd", "init", "alpineinit", "upstart", "windows", ""},
 		t,
 	)
-}
-
-func TestDetectServiceWin(t *testing.T) {
-	if runtime.GOOS != "windows" {
-		return
-	}
-	t.Parallel()
-	svcName := "hello123_this_should_not_exist"
-	svc := NewServiceWindows(svcName, nil, util.Config{})
-	ex, err := svc.Exists()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if ex {
-		t.Fatalf("service %q should not exist", svcName)
-	}
-}
-
-func TestDetectServiceWin2(t *testing.T) {
-	t.Fatalf("failed2")
 }
 
 func TestDetectDistro(t *testing.T) {

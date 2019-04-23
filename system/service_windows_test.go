@@ -7,9 +7,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 )
 
-const svcName = "randomGossTestService"
-
-func cleanupTestSvc(t *testing.T, m *mgr.Mgr) {
+func cleanupTestSvc(t *testing.T, svcName string, m *mgr.Mgr) {
 	svc, err := m.OpenService(svcName)
 	if err != nil {
 		// We assume that the service does not exist.
@@ -20,27 +18,24 @@ func cleanupTestSvc(t *testing.T, m *mgr.Mgr) {
 	}
 }
 
-func TestDetectServiceWinCR(t *testing.T) {
+func TestDetectServiceWinMgr(t *testing.T) {
 	m, err := mgr.Connect()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create and auto-cleanup our service.
-	cleanupTestSvc(t, m)
+	const svcName = "randomGossTestService"
+	cleanupTestSvc(t, svcName, m)
 	mSvc, err := m.CreateService(svcName, "powershell", mgr.Config{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer func() {
-		if err = mSvc.Delete(); err != nil {
-			t.Fatal(err)
-		}
-	}()
+	defer mSvc.Delete()
 
 	svc := NewServiceWindows(svcName, nil, util.Config{})
 
-	// Does the service exist?
+	// Service should exist.
 	ex, err := svc.Exists()
 	if err != nil {
 		t.Fatal(err)
@@ -49,12 +44,24 @@ func TestDetectServiceWinCR(t *testing.T) {
 		t.Fatalf("service %q not found", svcName)
 	}
 
-	// Is it running?
+	// But it should not be running (and an attempt to run it would fail).
 	running, err := svc.Running()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !running {
 		t.Fatalf("service %q is not running", svcName)
+	}
+}
+
+func TestDetectServiceWinMgrNoExist(t *testing.T) {
+	svcName := "randomGossServiceThatShouldNotExist"
+	svc := NewServiceWindows(svcName, nil, util.Config{})
+	ex, err := svc.Exists()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ex {
+		t.Fatalf("service %q should not exist", svcName)
 	}
 }
