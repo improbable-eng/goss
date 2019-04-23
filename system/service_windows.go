@@ -23,6 +23,10 @@ func (s *ServiceWindows) Exists() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	return exists(m)
+}
+
+func (s *ServiceWindows) exists(m *mgr.Mgr) (bool, error) {
 	svcs, err := m.ListServices()
 	if err != nil {
 		return false, err
@@ -36,19 +40,18 @@ func (s *ServiceWindows) Exists() (bool, error) {
 }
 
 func (s *ServiceWindows) Enabled() (bool, error) {
-	// Existence check.
-	ex, err := s.Exists()
-	if err != nil {
-		return false, err
-	}
-	if !ex {
-		return false, nil
-	}
-
 	m, err := mgr.Connect()
 	if err != nil {
 		return false, err
 	}
+
+	// If service does not exist, it's not enabled.
+	ex, err := s.exists(m)
+	if !ex || err != nil {
+		return false, err
+	}
+
+	// Open service and check whether it's enabled (i.e. whether it starts automatically).
 	svc, err := m.OpenService(s.service)
 	if err != nil {
 		return false, err
@@ -61,19 +64,18 @@ func (s *ServiceWindows) Enabled() (bool, error) {
 }
 
 func (s *ServiceWindows) Running() (bool, error) {
-	// Existence check.
-	ex, err := s.Exists()
-	if err != nil {
-		return false, err
-	}
-	if !ex {
-		return false, nil
-	}
-
 	m, err := mgr.Connect()
 	if err != nil {
 		return false, err
 	}
+
+	// If a service does not exist, it's not running.
+	ex, err := s.exists(m)
+	if !ex || err != nil {
+		return false, err
+	}
+
+	// Open service and check whether windows reports it as running.
 	svc, err := m.OpenService(s.service)
 	if err != nil {
 		return false, err
