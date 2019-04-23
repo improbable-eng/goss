@@ -49,8 +49,8 @@ func TestDetectServiceWinMgr(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !running {
-		t.Fatalf("service %q is not running", svcName)
+	if running {
+		t.Fatalf("service %q is running", svcName)
 	}
 }
 
