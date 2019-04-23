@@ -23,7 +23,7 @@ func (s *ServiceWindows) Exists() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return exists(m)
+	return s.exists(m)
 }
 
 func (s *ServiceWindows) exists(m *mgr.Mgr) (bool, error) {
