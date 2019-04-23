@@ -60,7 +60,7 @@ func (s *ServiceWindows) Enabled() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return cfg.StartType == mgr.StartAutomatic, nil
+	return cfg.StartType != mgr.StartDisabled, nil
 }
 
 func (s *ServiceWindows) Running() (bool, error) {

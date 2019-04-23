@@ -1,22 +1,14 @@
 package system
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/aelsabbahy/goss/util"
 	"golang.org/x/sys/windows/svc/mgr"
 )
-
-func cleanupTestSvc(t *testing.T, svcName string, m *mgr.Mgr) {
-	svc, err := m.OpenService(svcName)
-	if err != nil {
-		// We assume that the service does not exist.
-		return
-	}
-	if err = svc.Delete(); err != nil {
-		t.Fatal(err)
-	}
-}
 
 func TestDetectServiceWinMgr(t *testing.T) {
 	m, err := mgr.Connect()
@@ -25,8 +17,8 @@ func TestDetectServiceWinMgr(t *testing.T) {
 	}
 
 	// Create and auto-cleanup our service.
-	const svcName = "randomGossTestService"
-	cleanupTestSvc(t, svcName, m)
+	rand.Seed(time.Now().UTC().UnixNano())
+	svcName := fmt.Sprintf("randomGossTestService%d", rand.Intn(10000))
 	mSvc, err := m.CreateService(svcName, "powershell", mgr.Config{})
 	if err != nil {
 		t.Fatal(err)
