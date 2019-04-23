@@ -49,6 +49,7 @@ func TestDetectService(t *testing.T) {
 func TestDetectServiceWin(t *testing.T) {
 	fmt.Fprintf(os.Stdout, "Start WTS0_i test\n")
 	fmt.Fprintf(os.Stderr, "Start WTS0_e test\n")
+	t.Log("Start WTS0_tt")
 	if runtime.GOOS != "windows" {
 		return
 	}
