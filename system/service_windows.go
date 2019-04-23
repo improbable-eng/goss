@@ -1,9 +1,6 @@
 package system
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/aelsabbahy/goss/util"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc/mgr"
@@ -31,7 +28,6 @@ func (s *ServiceWindows) Exists() (bool, error) {
 		return false, err
 	}
 	for _, svc := range svcs {
-		fmt.Fprintf(os.Stderr, "Found service %v\n", svc)
 		if svc == s.service {
 			return true, nil
 		}
@@ -86,6 +82,5 @@ func (s *ServiceWindows) Running() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	fmt.Fprintf(os.Stderr, "Running=%+v\n", q)
 	return q.State == windows.SERVICE_RUNNING, nil
 }

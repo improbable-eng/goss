@@ -1,8 +1,6 @@
 package system
 
 import (
-	"fmt"
-	"os"
 	"reflect"
 	"runtime"
 	"testing"
@@ -47,13 +45,9 @@ func TestDetectService(t *testing.T) {
 }
 
 func TestDetectServiceWin(t *testing.T) {
-	fmt.Fprintf(os.Stdout, "Start WTS0_i test\n")
-	fmt.Fprintf(os.Stderr, "Start WTS0_e test\n")
-	t.Log("Start WTS0_tt")
 	if runtime.GOOS != "windows" {
 		return
 	}
-	fmt.Fprintf(os.Stderr, "Start WTS test\n")
 	t.Parallel()
 	svcName := "hello123_this_should_not_exist"
 	svc := NewServiceWindows(svcName, nil, util.Config{})
@@ -64,8 +58,6 @@ func TestDetectServiceWin(t *testing.T) {
 	if ex {
 		t.Fatalf("service %q should not exist", svcName)
 	}
-	fmt.Fprintf(os.Stderr, "End WTS test\n")
-	t.Fatalf("?failed1")
 }
 
 func TestDetectServiceWin2(t *testing.T) {
