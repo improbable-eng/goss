@@ -14,6 +14,7 @@ require (
 	github.com/onsi/gomega v0.0.0-20161031154339-ff4bc6b6f9f5
 	github.com/opencontainers/runc v0.0.0-20161107232042-8779fa57eb4a
 	github.com/patrickmn/go-cache v2.0.0+incompatible
+	github.com/ricochet2200/go-disk-usage v0.0.0-20150921141558-f0d1b743428f
 	github.com/urfave/cli v0.0.0-20161102131801-d86a009f5e13
 	golang.org/x/sys v0.0.0-20181210030007-2a47403f2ae5
 	gopkg.in/yaml.v2 v2.0.0-20160928153709-a5b47d31c556

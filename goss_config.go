@@ -23,6 +23,7 @@ type GossConfig struct {
 	Interfaces   resource.InterfaceMap   `json:"interface,omitempty" yaml:"interface,omitempty"`
 	HTTPs        resource.HTTPMap        `json:"http,omitempty" yaml:"http,omitempty"`
 	Matchings    resource.MatchingMap    `json:"matching,omitempty" yaml:"matching,omitempty"`
+	DiskUsages   resource.DiskUsageMap   `json:"disk_usage,omitempty" yaml:"disk_usage,omitempty"`
 }
 
 func NewGossConfig() *GossConfig {
@@ -43,6 +44,7 @@ func NewGossConfig() *GossConfig {
 		Interfaces:   make(resource.InterfaceMap),
 		HTTPs:        make(resource.HTTPMap),
 		Matchings:    make(resource.MatchingMap),
+		DiskUsages:   make(resource.DiskUsageMap),
 	}
 }
 
@@ -64,6 +66,7 @@ func (c *GossConfig) Resources() []resource.Resource {
 		c.Mounts,
 		c.Interfaces,
 		c.Matchings,
+		c.DiskUsages,
 	)
 
 	for _, m := range gm {
