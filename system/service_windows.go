@@ -6,6 +6,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 )
 
+// ServiceWindows is used to query windows service manager.
 type ServiceWindows struct {
 	service string
 }
