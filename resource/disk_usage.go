@@ -9,6 +9,8 @@ type DiskUsage struct {
 	Title       string  `json:"title,omitempty" yaml:"title,omitempty"`
 	Meta        meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
 	Path        string  `json:"-" yaml:"-"`
+	TotalBytes  matcher `json:"total_bytes" yaml:"utilization"`
+	FreeBytes   matcher `json:"free_bytes" yaml:"utilization"`
 	Utilization matcher `json:"utilization" yaml:"utilization"`
 }
 

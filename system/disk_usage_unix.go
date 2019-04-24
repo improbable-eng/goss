@@ -23,12 +23,28 @@ func (u *DefDiskUsage) Path() string {
 	return u.path
 }
 
+func (u *DefDiskUsage) TotalBytes() (uint64, error) {
+	s, err := u.stat()
+	if err != nil {
+		return 0, err
+	}
+	return s.Blocks * uint64(s.Bsize), nil
+}
+
+func (u *DefDiskUsage) FreeBytes() (uint64, error) {
+	s, err := u.stat()
+	if err != nil {
+		return 0, err
+	}
+	return s.Bfree * uint64(s.Bsize), nil
+}
+
 func (u *DefDiskUsage) Utilization() (int, error) {
 	s, err := u.stat()
 	if err != nil {
 		return 0, err
 	}
-	return int(100 * (1 - float32(s.Bfree)/float32(s.Blocks))), err
+	return int(100 * (1 - float32(s.Bfree)/float32(s.Blocks))), nil
 }
 
 func (u *DefDiskUsage) stat() (*unix.Statfs_t, error) {

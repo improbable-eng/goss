@@ -17,8 +17,24 @@ func (u *DefDiskUsage) Path() string {
 	return u.path
 }
 
+func (u *DefDiskUsage) TotalBytes() (uint64, error) {
+	totalBytes, _, err := u.stat()
+	if err != nil {
+		return 0, err
+	}
+	return totalBytes, nil
+}
+
+func (u *DefDiskUsage) FreeBytes() (uint64, error) {
+	_, freeBytes, err := u.stat()
+	if err != nil {
+		return 0, err
+	}
+	return freeBytes, nil
+}
+
 func (u *DefDiskUsage) Utilization() (int, error) {
-	totalBytes, availBytes, err := u.stat()
+	totalBytes, freeBytes, err := u.stat()
 	if err != nil {
 		return 0, err
 	}
@@ -26,7 +42,7 @@ func (u *DefDiskUsage) Utilization() (int, error) {
 }
 
 func (u *DefDiskUsage) stat() (uint64, uint64, error) {
-	var dummy, totalBytes, availBytes uint64
+	var dummy, totalBytes, freeBytes uint64
 
 	r1, _, err := windows.
 		NewLazySystemDLL("kernel32.dll").
@@ -35,12 +51,12 @@ func (u *DefDiskUsage) stat() (uint64, uint64, error) {
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(u.path))),
 			uintptr(unsafe.Pointer(&dummy)), // free bytes available to caller
 			uintptr(unsafe.Pointer(&totalBytes)),
-			uintptr(unsafe.Pointer(&availBytes)))
+			uintptr(unsafe.Pointer(&freeBytes)))
 
 	if r1 == 0 {
 		// syscall errors out if r1 is zero. err is always not nil.
 		return 0, 0, fmt.Errorf("failed to call kernel32.dll:GetDiskFreeSpaceExW: %v", err)
 	}
 
-	return totalBytes, availBytes, nil
+	return totalBytes, freeBytes, nil
 }
