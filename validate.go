@@ -67,7 +67,6 @@ func Validate(c *cli.Context, startTime time.Time) {
 	}
 
 	gossConfig := getGossConfig(c)
-
 	sys := system.New(c)
 	outputer := getOutputer(c)
 
