@@ -3,7 +3,9 @@
 package system
 
 import (
-	"syscall"
+	"os"
+
+	"golang.org/x/sys/unix"
 )
 
 func (u *DefDiskUsage) Exists() (bool, error) {
@@ -11,7 +13,7 @@ func (u *DefDiskUsage) Exists() (bool, error) {
 	if err == nil {
 		return true, nil
 	}
-	if errS, ok := err.(syscall.Errno); ok && errS == syscall.ENOENT {
+	if errS, ok := err.(unix.Errno); ok && errS == unix.ENOENT {
 		return false, nil
 	}
 	return false, err
@@ -23,11 +25,18 @@ func (u *DefDiskUsage) Path() string {
 
 func (u *DefDiskUsage) Utilization() (int, error) {
 	s, err := u.stat()
+	if err != nil {
+		return 0, err
+	}
 	return int(100 * (1 - float32(s.Bfree)/float32(s.Blocks))), err
 }
 
-func (u *DefDiskUsage) stat() (syscall.Statfs_t, error) {
-	var s syscall.Statfs_t
-	err := syscall.Statfs(u.path, &s)
-	return s, err
+func (u *DefDiskUsage) stat() (*unix.Statfs_t, error) {
+	fd, err := os.Open(u.path)
+	if err != nil {
+		return nil, err
+	}
+	var s unix.Statfs_t
+	err = unix.Fstatfs(int(fd.Fd()), &s)
+	return &s, err
 }
