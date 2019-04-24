@@ -1,6 +1,9 @@
 package resource
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/aelsabbahy/goss/system"
 	"github.com/aelsabbahy/goss/util"
 )
@@ -21,6 +24,7 @@ func (u *DiskUsage) GetMeta() meta    { return u.Meta }
 func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 	skip := false
 	sysDiskUsage := sys.NewDiskUsage(u.Path, sys, util.Config{})
+	fmt.Fprintf(os.Stderr, "DU: %+v", sysDiskUsage)
 
 	var results []TestResult
 	results = append(results, ValidateValue(u, "utilization", u.Utilization, sysDiskUsage.Utilization, skip))
@@ -29,10 +33,9 @@ func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 
 func NewDiskUsage(sysDiskUsage system.DiskUsage, config util.Config) (*DiskUsage, error) {
 	path := sysDiskUsage.Path()
-	utilization := sysDiskUsage.Utilization()
-	f := &DiskUsage{
+	utilization, err := sysDiskUsage.Utilization()
+	return &DiskUsage{
 		Path:        path,
 		Utilization: utilization,
-	}
-	return f, nil
+	}, err
 }

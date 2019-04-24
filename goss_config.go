@@ -165,5 +165,9 @@ func mergeGoss(g1, g2 GossConfig) GossConfig {
 		g1.Matchings[k] = v
 	}
 
+	for k, v := range g2.DiskUsages {
+		g1.DiskUsages[k] = v
+	}
+
 	return g1
 }
