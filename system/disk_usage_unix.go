@@ -13,7 +13,7 @@ func (u *DefDiskUsage) Exists() (bool, error) {
 	if err == nil {
 		return true, nil
 	}
-	if errS, ok := err.(unix.Errno); ok && errS == unix.ENOENT {
+	if os.IsNotExist(err) {
 		return false, nil
 	}
 	return false, err

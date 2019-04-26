@@ -18,6 +18,14 @@ func TestDiskUsageOK(t *testing.T) {
 	if total <= 0 {
 		t.Fatalf("total(%v) <= 0", total)
 	}
+
+	exist, err := u.Exists()
+	if !exist {
+		t.Fatal("/ does not exist")
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestDiskUsageInvalid(t *testing.T) {
@@ -25,6 +33,14 @@ func TestDiskUsageInvalid(t *testing.T) {
 	_, _, err := u.Stat()
 	if err == nil {
 		t.Fatal("Stat should fail on invalid directory")
+	}
+
+	exist, err := u.Exists()
+	if exist {
+		t.Fatal("'INVALID DIRECTORY' existence check succeeded (and it should not have)")
+	}
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
