@@ -23,9 +23,10 @@ func (u *DiskUsage) GetMeta() meta    { return u.Meta }
 
 func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 	skip := false
-	du := NewDiskUsage(sys.NewDiskUsage(u.Path, sys, util.Config{}))
+	// TODO handle err?
+	du, _ := NewDiskUsage(sys.NewDiskUsage(u.Path, sys, util.Config{}), util.Config{})
 
-	results := []TestResult{ValidateValue(f, "exists", f.Exists, sysFile.Exists, skip)}
+	results := []TestResult{ValidateValue(u, "exists", u.Exists, du.Exists, skip)}
 	if shouldSkip(results) {
 		skip = true
 	}
@@ -35,8 +36,8 @@ func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 	if u.FreeBytes != nil {
 		results = append(results, ValidateValue(u, "free_bytes", u.FreeBytes, du.FreeBytes, skip))
 	}
-	if u.UtilizationPrecent != nil {
-		results = append(results, ValidateValue(u, "utilization_percent", u.UtilizationPrecent, du.UtilizationPrecent, skip))
+	if u.UtilizationPercent != nil {
+		results = append(results, ValidateValue(u, "utilization_percent", u.UtilizationPercent, du.UtilizationPercent, skip))
 	}
 	return results
 }
