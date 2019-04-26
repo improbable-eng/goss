@@ -9,7 +9,7 @@ import (
 )
 
 func (u *DefDiskUsage) Exists() (bool, error) {
-	_, err := u.stat()
+	_, _, err := u.Stat()
 	if err == nil {
 		return true, nil
 	}
@@ -19,40 +19,12 @@ func (u *DefDiskUsage) Exists() (bool, error) {
 	return false, err
 }
 
-func (u *DefDiskUsage) Path() string {
-	return u.path
-}
-
-func (u *DefDiskUsage) TotalBytes() (uint64, error) {
-	s, err := u.stat()
-	if err != nil {
-		return 0, err
-	}
-	return s.Blocks * uint64(s.Bsize), nil
-}
-
-func (u *DefDiskUsage) FreeBytes() (uint64, error) {
-	s, err := u.stat()
-	if err != nil {
-		return 0, err
-	}
-	return s.Bfree * uint64(s.Bsize), nil
-}
-
-func (u *DefDiskUsage) Utilization() (int, error) {
-	s, err := u.stat()
-	if err != nil {
-		return 0, err
-	}
-	return int(100 * (1 - float32(s.Bfree)/float32(s.Blocks))), nil
-}
-
-func (u *DefDiskUsage) stat() (*unix.Statfs_t, error) {
+func (u *DefDiskUsage) Stat() (uint64, uint64, error) {
 	fd, err := os.Open(u.path)
 	if err != nil {
-		return nil, err
+		return 0, 0, err
 	}
 	var s unix.Statfs_t
 	err = unix.Fstatfs(int(fd.Fd()), &s)
-	return &s, err
+	return s.Blocks * uint64(s.Bsize), s.Bfree * uint64(s.Bsize), err
 }
