@@ -43,20 +43,17 @@ func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 }
 
 func NewDiskUsage(sysDiskUsage system.DiskUsage, config util.Config) (*DiskUsage, error) {
-	path := sysDiskUsage.Path()
 	totalBytes, freeBytes, err := sysDiskUsage.Stat()
 	if err != nil {
-		return nil, err
-	}
-	utilization := 100
-	if totalBytes != 0 {
-		utilization = int(100 * (1 - float32(freeBytes)/float32(totalBytes)))
+		return &DiskUsage{
+			Path:   sysDiskUsage.Path(),
+			Exists: false,
+		}, nil
 	}
 	return &DiskUsage{
-		Exists:             true, // TODO(stefan): error handling here?
-		Path:               path,
+		Exists:             true,
 		TotalBytes:         totalBytes,
 		FreeBytes:          freeBytes,
-		UtilizationPercent: utilization,
-	}, err
+		UtilizationPercent: sysDiskUsage.UtilizationPercent(totalBytes, freeBytes),
+	}, nil
 }
