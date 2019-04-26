@@ -76,8 +76,8 @@ func NewDiskUsage(sysDiskUsage system.DiskUsage, config util.Config) (*DiskUsage
 	return &DiskUsage{
 		Path:               sysDiskUsage.Path(),
 		Exists:             true,
-		TotalBytes:         totalBytes,
-		FreeBytes:          freeBytes,
+		TotalBytes:         int(totalBytes),
+		FreeBytes:          int(freeBytes),
 		UtilizationPercent: sysDiskUsage.UtilizationPercent(totalBytes, freeBytes),
 	}, nil
 }
