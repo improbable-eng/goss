@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 
@@ -9,8 +8,14 @@ import (
 )
 
 func (u *DefDiskUsage) Exists() (bool, error) {
-	_, _, _, err := u.stat()
-	return err == nil, err
+	_, _, err := u.Stat()
+	if err != nil {
+		if errN, ok := err.(windows.Errno); ok && errN == windows.ERROR_PATH_NOT_FOUND {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func (u *DefDiskUsage) Stat() (uint64, uint64, error) {
@@ -27,7 +32,7 @@ func (u *DefDiskUsage) Stat() (uint64, uint64, error) {
 
 	if r1 == 0 {
 		// syscall errors out if r1 is zero. err is always not nil.
-		return 0, 0, fmt.Errorf("failed to call kernel32.dll:GetDiskFreeSpaceExW: %v", err)
+		return 0, 0, err
 	}
 
 	return totalBytes, freeBytes, nil
