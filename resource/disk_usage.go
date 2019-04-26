@@ -1,6 +1,8 @@
 package resource
 
 import (
+	"time"
+
 	"github.com/aelsabbahy/goss/system"
 	"github.com/aelsabbahy/goss/util"
 )
@@ -23,8 +25,21 @@ func (u *DiskUsage) GetMeta() meta    { return u.Meta }
 
 func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 	skip := false
-	// TODO handle err?
-	du, _ := NewDiskUsage(sys.NewDiskUsage(u.Path, sys, util.Config{}), util.Config{})
+	startTime := time.Now()
+	du, err := NewDiskUsage(sys.NewDiskUsage(u.Path, sys, util.Config{}), util.Config{})
+	if err != nil {
+		return []TestResult{{
+			Successful:   false,
+			Result:       FAIL,
+			ResourceType: "NewDiskUsage constructor",
+			TestType:     Value,
+			ResourceId:   u.ID(),
+			Title:        u.GetTitle(),
+			Meta:         u.GetMeta(),
+			Err:          err,
+			Duration:     time.Now().Sub(startTime),
+		}}
+	}
 
 	results := []TestResult{ValidateValue(u, "exists", u.Exists, du.Exists, skip)}
 	if shouldSkip(results) {
@@ -43,14 +58,23 @@ func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 }
 
 func NewDiskUsage(sysDiskUsage system.DiskUsage, config util.Config) (*DiskUsage, error) {
-	totalBytes, freeBytes, err := sysDiskUsage.Stat()
+	exists, err := sysDiskUsage.Exists()
 	if err != nil {
+		return nil, err
+	}
+	if !exists {
 		return &DiskUsage{
 			Path:   sysDiskUsage.Path(),
 			Exists: false,
 		}, nil
 	}
+
+	totalBytes, freeBytes, err := sysDiskUsage.Stat()
+	if err != nil {
+		return nil, err
+	}
 	return &DiskUsage{
+		Path:               sysDiskUsage.Path(),
 		Exists:             true,
 		TotalBytes:         totalBytes,
 		FreeBytes:          freeBytes,

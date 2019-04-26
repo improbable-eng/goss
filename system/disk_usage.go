@@ -27,7 +27,7 @@ func (u *DefDiskUsage) Path() string {
 
 func (u *DefDiskUsage) UtilizationPercent(totalBytes, freeBytes uint64) int {
 	if totalBytes == 0 {
-		// If totalBytes is 0, set utilization to 100%. Not sure if this can ever happen, but it protects us from division by zero.
+		// If totalBytes is 0, set utilization to 100%. This protects us from division by zero.
 		return 100
 	}
 	return 100 - int(freeBytes*100/totalBytes)
