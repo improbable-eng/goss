@@ -55,9 +55,13 @@ func NewDiskUsage(sysDiskUsage system.DiskUsage, config util.Config) (*DiskUsage
 		if totalBytes, err := sysDiskUsage.TotalBytes(); err != nil {
 			u.TotalBytes = totalBytes
 		}
+	}
+	if !contains(config.IgnoreList, "free_bytes") {
 		if freeBytes, err := sysDiskUsage.FreeBytes(); err != nil {
 			u.FreeBytes = freeBytes
 		}
+	}
+	if !contains(config.IgnoreList, "utilization_percent") {
 		if utilizationPercent, err := sysDiskUsage.UtilizationPercent(); err != nil {
 			u.UtilizationPercent = utilizationPercent
 		}
