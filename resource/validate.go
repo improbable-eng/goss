@@ -81,13 +81,13 @@ func ValidateValue(res ResourceRead, property string, expectedValue interface{},
 	var foundValue interface{}
 	var err error
 	switch f := actual.(type) {
-	case bool, string, int, []string, interface{}:
-		foundValue = f
 	case func() (bool, error):
 		foundValue, err = f()
 	case func() (string, error):
 		foundValue, err = f()
 	case func() (int, error):
+		foundValue, err = f()
+	case func() (uint64, error):
 		foundValue, err = f()
 	case func() ([]string, error):
 		foundValue, err = f()

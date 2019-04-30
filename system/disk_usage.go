@@ -5,14 +5,18 @@ import "github.com/aelsabbahy/goss/util"
 type DiskUsage interface {
 	Exists() (bool, error)
 	Path() string
-	// Utilization returns utilization from percent. totalBytes and freeBytes come from Stat().
-	UtilizationPercent(totalBytes uint64, freeBytes uint64) int
-	// Stat returns total bytes, free bytes and error (or nil).
-	Stat() (uint64, uint64, error)
+	Calculate()
+	TotalBytes() (uint64, error)
+	FreeBytes() (uint64, error)
+	UtilizationPercent() (int, error)
 }
 
 type DefDiskUsage struct {
-	path string
+	path        string
+	totalBytes  uint64
+	freeBytes   uint64
+	err         error
+	initialized bool
 }
 
 func NewDefDiskUsage(path string, system *System, config util.Config) DiskUsage {
@@ -25,10 +29,21 @@ func (u *DefDiskUsage) Path() string {
 	return u.path
 }
 
-func (u *DefDiskUsage) UtilizationPercent(totalBytes, freeBytes uint64) int {
-	if totalBytes == 0 {
-		// If totalBytes is 0, set utilization to 100%. This protects us from division by zero.
-		return 100
+func (u *DefDiskUsage) TotalBytes() (uint64, error) {
+	return u.totalBytes, u.err
+}
+
+func (u *DefDiskUsage) FreeBytes() (uint64, error) {
+	return u.freeBytes, u.err
+}
+
+func (u *DefDiskUsage) UtilizationPercent() (int, error) {
+	if u.err != nil {
+		return 0, u.err
 	}
-	return 100 - int(freeBytes*100/totalBytes)
+	if u.totalBytes == 0 {
+		// If totalBytes is 0, set utilization to 100%. This protects us from division by zero.
+		return 100, nil
+	}
+	return 100 - int(u.freeBytes*100/u.totalBytes), nil
 }

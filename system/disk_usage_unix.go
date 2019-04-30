@@ -9,22 +9,23 @@ import (
 )
 
 func (u *DefDiskUsage) Exists() (bool, error) {
-	_, _, err := u.Stat()
-	if err == nil {
+	if u.err == nil {
 		return true, nil
 	}
-	if os.IsNotExist(err) {
+	if os.IsNotExist(u.err) {
 		return false, nil
 	}
-	return false, err
+	return false, u.err
 }
 
-func (u *DefDiskUsage) Stat() (uint64, uint64, error) {
+func (u *DefDiskUsage) Calculate() {
 	fd, err := os.Open(u.path)
 	if err != nil {
-		return 0, 0, err
+		u.err = err
+		return
 	}
 	var s unix.Statfs_t
-	err = unix.Fstatfs(int(fd.Fd()), &s)
-	return s.Blocks * uint64(s.Bsize), s.Bfree * uint64(s.Bsize), err
+	u.err = unix.Fstatfs(int(fd.Fd()), &s)
+	u.totalBytes = s.Blocks * uint64(s.Bsize)
+	u.freeBytes = s.Bfree * uint64(s.Bsize)
 }

@@ -11,7 +11,7 @@ import (
 func matcherToGomegaMatcher(matcher interface{}) (types.GomegaMatcher, error) {
 	switch x := matcher.(type) {
 	case string, int, bool, float64:
-		return gomega.Equal(x), nil
+		return gomega.BeEquivalentTo(x), nil
 	case []interface{}:
 		var matchers []types.GomegaMatcher
 		for _, valueI := range x {

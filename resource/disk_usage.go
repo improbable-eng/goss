@@ -1,8 +1,6 @@
 package resource
 
 import (
-	"time"
-
 	"github.com/aelsabbahy/goss/system"
 	"github.com/aelsabbahy/goss/util"
 )
@@ -25,59 +23,43 @@ func (u *DiskUsage) GetMeta() meta    { return u.Meta }
 
 func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 	skip := false
-	startTime := time.Now()
-	du, err := NewDiskUsage(sys.NewDiskUsage(u.Path, sys, util.Config{}), util.Config{})
-	if err != nil {
-		return []TestResult{{
-			Successful:   false,
-			Result:       FAIL,
-			ResourceType: "NewDiskUsage constructor",
-			TestType:     Value,
-			ResourceId:   u.ID(),
-			Title:        u.GetTitle(),
-			Meta:         u.GetMeta(),
-			Err:          err,
-			Duration:     time.Now().Sub(startTime),
-		}}
-	}
+	sysDU := sys.NewDiskUsage(u.Path, sys, util.Config{})
 
-	results := []TestResult{ValidateValue(u, "exists", u.Exists, du.Exists, skip)}
+	var results []TestResult
+	results = append(results, ValidateValue(u, "exists", u.Exists, sysDU.Exists, skip))
 	if shouldSkip(results) {
 		skip = true
 	}
 	if u.TotalBytes != nil {
-		results = append(results, ValidateValue(u, "total_bytes", u.TotalBytes, du.TotalBytes, skip))
+		results = append(results, ValidateValue(u, "total_bytes", u.TotalBytes, sysDU.TotalBytes, skip))
 	}
 	if u.FreeBytes != nil {
-		results = append(results, ValidateValue(u, "free_bytes", u.FreeBytes, du.FreeBytes, skip))
+		results = append(results, ValidateValue(u, "free_bytes", u.FreeBytes, sysDU.FreeBytes, skip))
 	}
 	if u.UtilizationPercent != nil {
-		results = append(results, ValidateValue(u, "utilization_percent", u.UtilizationPercent, du.UtilizationPercent, skip))
+		results = append(results, ValidateValue(u, "utilization_percent", u.UtilizationPercent, sysDU.UtilizationPercent, skip))
 	}
 	return results
 }
 
 func NewDiskUsage(sysDiskUsage system.DiskUsage, config util.Config) (*DiskUsage, error) {
-	exists, err := sysDiskUsage.Exists()
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return &DiskUsage{
-			Path:   sysDiskUsage.Path(),
-			Exists: false,
-		}, nil
+	sysDiskUsage.Calculate()
+	exists, _ := sysDiskUsage.Exists()
+	u := &DiskUsage{
+		Path:   sysDiskUsage.Path(),
+		Exists: exists,
 	}
 
-	totalBytes, freeBytes, err := sysDiskUsage.Stat()
-	if err != nil {
-		return nil, err
+	if !contains(config.IgnoreList, "total_bytes") {
+		if totalBytes, err := sysDiskUsage.TotalBytes(); err != nil {
+			u.TotalBytes = totalBytes
+		}
+		if freeBytes, err := sysDiskUsage.FreeBytes(); err != nil {
+			u.FreeBytes = freeBytes
+		}
+		if utilizationPercent, err := sysDiskUsage.UtilizationPercent(); err != nil {
+			u.UtilizationPercent = utilizationPercent
+		}
 	}
-	return &DiskUsage{
-		Path:               sysDiskUsage.Path(),
-		Exists:             true,
-		TotalBytes:         int(totalBytes),
-		FreeBytes:          int(freeBytes),
-		UtilizationPercent: sysDiskUsage.UtilizationPercent(totalBytes, freeBytes),
-	}, nil
+	return u, nil
 }
