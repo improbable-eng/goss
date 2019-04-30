@@ -31,9 +31,9 @@ func (u *DefDiskUsage) Calculate() {
 
 	if r1 == 0 {
 		// syscall errors out if r1 is zero. err is always not nil.
-		u.error = err
+		u.err = err
 		return
 	}
 
-	u.error = nil
+	u.err = nil
 }
