@@ -16,6 +16,7 @@
 * [Available tests](#available-tests)
   * [addr](#addr)
   * [command](#command)
+  * [disk-usage](#disk-usage)
   * [dns](#dns)
   * [file](#file)
   * [gossfile](#gossfile)
@@ -108,6 +109,7 @@ This will add a test for a resource. Non existent resources will add a test to e
 #### Resource types
 * `addr` - can verify if a remote `address:port` is reachable, see [addr](#addr)
 * `command` - can run a [command](#command) and validate the exit status and/or output
+* `disk-usage` - calculates [disk-usage](#disk-usage) and validates whether there is enough space
 * `dns` - resolves a [dns](#dns) name and validates the addresses
 * `file` - can validate a [file](#file) existence, permissions, stats (size, etc) and contents
 * `goss` - allows you to include the contents of another [gossfile](#gossfile)
@@ -401,6 +403,7 @@ If you want to keep your tests in separate files, the best way to obtain a singl
 
 * [addr](#addr)
 * [command](#command)
+* [disk-usage](#disk-usage)
 * [dns](#dns)
 * [file](#file)
 * [gossfile](#gossfile)
@@ -444,6 +447,26 @@ command:
 
 `stdout` and `stderr` can be a string or [pattern](#patterns)
 
+### disk-usage
+Validates whether there is enough space remaining on disk.
+
+```yaml
+disk_usage:
+  /:
+    exists: true
+    total_bytes:
+      gt: 1000000000
+    free_bytes:
+      gt: 500000000
+    utilization_percent:
+      lt: 80
+```
+
+This test validates that:
+- the mount point `/` exists
+- the size of `/` mount point is greater than 1GB
+- the amout of free space on `/` is more than 500MB
+- utilization, calculated as `free_bytes/total_bytes` is at most 80%
 
 ### dns
 Validates that the provided address is resolvable and the addrs it resolves to.

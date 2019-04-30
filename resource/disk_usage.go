@@ -24,6 +24,7 @@ func (u *DiskUsage) GetMeta() meta    { return u.Meta }
 func (u *DiskUsage) Validate(sys *system.System) []TestResult {
 	skip := false
 	sysDU := sys.NewDiskUsage(u.Path, sys, util.Config{})
+	sysDU.Calculate()
 
 	var results []TestResult
 	results = append(results, ValidateValue(u, "exists", u.Exists, sysDU.Exists, skip))
