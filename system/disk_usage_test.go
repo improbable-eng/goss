@@ -8,7 +8,21 @@ import (
 
 func TestDiskUsageOK(t *testing.T) {
 	u := NewDefDiskUsage("/", nil, util.Config{})
-	total, free, err := u.Stat()
+	u.Calculate()
+
+	ex, err := u.Exists()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ex {
+		t.Fatal("/ does not exist")
+	}
+
+	total, err := u.TotalBytes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	free, err := u.TotalBytes()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -18,23 +32,13 @@ func TestDiskUsageOK(t *testing.T) {
 	if total <= 0 {
 		t.Fatalf("total(%v) <= 0", total)
 	}
-
-	exist, err := u.Exists()
-	if !exist {
-		t.Fatal("/ does not exist")
-	}
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 func TestDiskUsageInvalid(t *testing.T) {
 	u := NewDefDiskUsage("INVALID DIRECTORY", nil, util.Config{})
-	_, _, err := u.Stat()
-	if err == nil {
-		t.Fatal("Stat should fail on invalid directory")
-	}
+	u.Calculate()
 
+	// Exist should return false and not fail.
 	exist, err := u.Exists()
 	if exist {
 		t.Fatal("'INVALID DIRECTORY' existence check succeeded (and it should not have)")
@@ -42,15 +46,30 @@ func TestDiskUsageInvalid(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// But totalBytes should error out.
+	if _, err = u.TotalBytes(); err == nil {
+		t.Fatal("Stat should fail on invalid directory")
+	}
 }
 
 func TestUtilization(t *testing.T) {
 	u := NewDefDiskUsage("DUMMY", nil, util.Config{})
-	if u.UtilizationPercent(0, 0) != 100 {
+
+	u.totalBytes = 0
+	u.freeBytes = 0
+	util, err := u.UtilizationPercent()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if util != 100 {
 		t.Fatal("DiskUsage.Utilization should report 100% if disk has no space")
 	}
-	ut := u.UtilizationPercent(100, 80)
-	if ut != 20 {
-		t.Fatalf("Utilization incorrect, got: %v, want: 20", ut)
+
+	u.totalBytes = 100
+	u.freeBytes = 80
+	util, err := u.UtilizationPercent()
+	if util != 20 {
+		t.Fatalf("Utilization incorrect, got: %v, want: 20", util)
 	}
 }
