@@ -54,10 +54,12 @@ func TestDiskUsageInvalid(t *testing.T) {
 }
 
 func TestUtilization(t *testing.T) {
-	u := NewDefDiskUsage("DUMMY", nil, util.Config{})
+	u := &DefDiskUsage{
+		totalBytes: 0,
+		freeBytes:  0,
+		err:        nil,
+	}
 
-	u.totalBytes = 0
-	u.freeBytes = 0
 	util, err := u.UtilizationPercent()
 	if err != nil {
 		t.Fatal(err)
@@ -68,7 +70,7 @@ func TestUtilization(t *testing.T) {
 
 	u.totalBytes = 100
 	u.freeBytes = 80
-	util, err := u.UtilizationPercent()
+	util, err = u.UtilizationPercent()
 	if util != 20 {
 		t.Fatalf("Utilization incorrect, got: %v, want: 20", util)
 	}
