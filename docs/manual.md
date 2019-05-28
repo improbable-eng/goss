@@ -455,9 +455,9 @@ disk_usage:
   /:
     exists: true
     total_bytes:
-      gt: 1000000000
+      gt: 1e9
     free_bytes:
-      gt: 500000000
+      gt: 500e6
     utilization_percent:
       lt: 80
 ```
