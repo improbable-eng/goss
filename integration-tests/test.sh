@@ -34,7 +34,6 @@ if docker ps -a | grep "$container_name";then
 fi
 # We need --privileged to make systemd work.
 opts=(--env OS=$os --cap-add SYS_ADMIN -v "$PWD/goss:/goss"  -d --name "$container_name" --privileged $(seccomp_opts))
-# opts=(--env OS=$os --cap-add SYS_ADMIN -v "$PWD/goss:/goss" -d --name "$container_name" $(seccomp_opts))
 id=$(docker run "${opts[@]}" "aelsabbahy/goss_$os" /sbin/init)
 ip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$id")
 trap "rv=\$?; docker rm -vf $id; exit \$rv" INT TERM EXIT
